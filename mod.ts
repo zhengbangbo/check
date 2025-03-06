@@ -12,7 +12,10 @@ async function runCommand(
     const { stdout } = await cmd.output();
     return new TextDecoder().decode(stdout).trim();
   } catch (error) {
-    return null; // Return null if the command is not found
+    if (error instanceof Deno.errors.NotFound) {
+      return null; // Command not found
+    }
+    throw error; // Re-throw other errors
   }
 }
 
@@ -45,9 +48,15 @@ export async function checkNodeLTSVersion() {
       );
     }
   } catch (error) {
-    console.error(
-      `\x1b[31m❌ Error checking Node.js version: ${error.message}\x1b[0m`,
-    );
+    if (error instanceof Error) {
+      console.error(
+        `\x1b[31m❌⚠️  Error checking Node.js version: ${error.message}\x1b[0m`,
+      );
+    } else {
+      console.error(
+        "\x1b[31m❌⚠️  An unknown error occurred while checking Node.js version.\x1b[0m",
+      );
+    }
   }
 }
 
@@ -97,9 +106,15 @@ export async function checkRustVersion() {
       );
     }
   } catch (error) {
-    console.error(
-      `\x1b[31m❌ Error checking Rust version: ${error.message}\x1b[0m`,
-    );
+    if (error instanceof Error) {
+      console.error(
+        `\x1b[31m❌⚠️  Error checking Rust version: ${error.message}\x1b[0m`,
+      );
+    } else {
+      console.error(
+        "\x1b[31m❌⚠️  An unknown error occurred while checking Rust version.\x1b[0m",
+      );
+    }
   }
 }
 
@@ -110,7 +125,7 @@ async function checkAndUpdateBrew() {
     return;
   }
 
-  console.log("\x1b[1;34m🔍 Checking for Homebrew updates...\x1b[0m");
+  console.log("\x1b[1;34m🔍  Checking for Homebrew updates...\x1b[0m");
 
   // Update Homebrew
   await runCommand("brew", ["update"]);
@@ -120,7 +135,7 @@ async function checkAndUpdateBrew() {
 
   if (!outdatedPackages) {
     console.log(
-      "\x1b[1;32m✅ Homebrew and all packages are up to date.\x1b[0m",
+      "\x1b[1;32m✅  Homebrew and all packages are up to date.\x1b[0m",
     );
   } else {
     console.log(
@@ -137,11 +152,11 @@ async function checkAndUpdateBrew() {
     if (answer === "y") {
       console.log("\x1b[1;34m⬆️  Updating Homebrew and packages...\x1b[0m");
       await runCommand("brew", ["upgrade"]);
-      console.log("\x1b[1;34m🧹 Cleaning up old versions...\x1b[0m");
+      console.log("\x1b[1;34m🧹  Cleaning up old versions...\x1b[0m");
       await runCommand("brew", ["cleanup"]);
-      console.log("\x1b[1;32m✅ Update complete!\x1b[0m");
+      console.log("\x1b[1;32m✅  Update complete!\x1b[0m");
     } else {
-      console.log("\x1b[1;33m🚀 Skipping update.\x1b[0m");
+      console.log("\x1b[1;33m🚀  Skipping update.\x1b[0m");
     }
   }
 }
