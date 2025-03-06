@@ -15,6 +15,14 @@ deno install -g -A jsr:@bob/check
 > `-g` flag is used to install the tool globally.
 > `-A` flag is used to grant all permissions to the tool.
 
+If you want to update the tool, run:
+
+```bash
+deno install -g -A -f jsr:@bob/check
+```
+
+> `-f` flag is used to force the installation.
+
 ## Usage
 
 Run the tool:
