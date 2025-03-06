@@ -1,36 +1,52 @@
 async function runCommand(
   command: string,
   args: string[] = [],
-): Promise<string> {
-  const cmd = new Deno.Command(command, {
-    args,
-    stdout: "piped",
-    stderr: "piped",
-  });
+): Promise<string | null> {
+  try {
+    const cmd = new Deno.Command(command, {
+      args,
+      stdout: "piped",
+      stderr: "piped",
+    });
 
-  const { stdout } = await cmd.output();
-  return new TextDecoder().decode(stdout).trim();
+    const { stdout } = await cmd.output();
+    return new TextDecoder().decode(stdout).trim();
+  } catch (error) {
+    return null; // Return null if the command is not found
+  }
 }
 
 export async function checkNodeLTSVersion() {
-  const currentNode = (await runCommand("node -v")).replace("v", "");
-  const latestLTS = (await runCommand("fnm list-remote --lts"))
-    .split("\n")
-    .filter(Boolean)
-    .pop()
-    ?.split(" ")[0]
-    .replace("v", "");
+  const nodeExists = await runCommand("node", ["-v"]);
+  if (!nodeExists) {
+    console.log("\x1b[33m⚠️  Node.js is not installed.\x1b[0m");
+    return;
+  }
 
-  if (currentNode !== latestLTS) {
-    console.log(
-      `\x1b[33m⚠️  Your Node.js version (${currentNode}) is not the latest LTS version (${latestLTS}).\x1b[0m`,
-    );
-    console.log(
-      `\x1b[34m   Run 'fnm install --lts && fnm use lts' to update.\x1b[0m`,
-    );
-  } else {
-    console.log(
-      `\x1b[32m✅  Your Node.js version (${currentNode}) is the latest LTS version.\x1b[0m`,
+  try {
+    const currentNode = nodeExists.replace("v", "");
+    const latestLTS = (await runCommand("fnm", ["list-remote", "--lts"]))
+      ?.split("\n")
+      .filter(Boolean)
+      .pop()
+      ?.split(" ")[0]
+      .replace("v", "");
+
+    if (currentNode !== latestLTS) {
+      console.log(
+        `\x1b[33m⚠️  Your Node.js version (${currentNode}) is not the latest LTS version (${latestLTS}).\x1b[0m`,
+      );
+      console.log(
+        `\x1b[34m   Run 'fnm install --lts && fnm use lts' to update.\x1b[0m`,
+      );
+    } else {
+      console.log(
+        `\x1b[32m✅  Your Node.js version (${currentNode}) is the latest LTS version.\x1b[0m`,
+      );
+    }
+  } catch (error) {
+    console.error(
+      `\x1b[31m❌ Error checking Node.js version: ${error.message}\x1b[0m`,
     );
   }
 }
@@ -56,26 +72,44 @@ export async function checkDenoVersion() {
 }
 
 export async function checkRustVersion() {
-  const currentRust = (await runCommand("rustc --version")).split(" ")[1];
-  const latestRust = await fetch(
-    "https://api.github.com/repos/rust-lang/rust/releases/latest",
-  )
-    .then((res) => res.json())
-    .then((data) => data.tag_name.replace("v", ""));
+  const rustExists = await runCommand("rustc", ["--version"]);
+  if (!rustExists) {
+    console.log("\x1b[33m⚠️  Rust is not installed.\x1b[0m");
+    return;
+  }
 
-  if (currentRust !== latestRust) {
-    console.log(
-      `\x1b[33m⚠️  Your Rust version (${currentRust}) is not the latest (${latestRust}).\x1b[0m`,
-    );
-    console.log(`\x1b[34m   Run 'rustup update' to update.\x1b[0m`);
-  } else {
-    console.log(
-      `\x1b[32m✅  Your Rust version (${currentRust}) is the latest.\x1b[0m`,
+  try {
+    const currentRust = rustExists.split(" ")[1];
+    const latestRust = await fetch(
+      "https://api.github.com/repos/rust-lang/rust/releases/latest",
+    )
+      .then((res) => res.json())
+      .then((data) => data.tag_name.replace("v", ""));
+
+    if (currentRust !== latestRust) {
+      console.log(
+        `\x1b[33m⚠️  Your Rust version (${currentRust}) is not the latest (${latestRust}).\x1b[0m`,
+      );
+      console.log(`\x1b[34m   Run 'rustup update' to update.\x1b[0m`);
+    } else {
+      console.log(
+        `\x1b[32m✅  Your Rust version (${currentRust}) is the latest.\x1b[0m`,
+      );
+    }
+  } catch (error) {
+    console.error(
+      `\x1b[31m❌ Error checking Rust version: ${error.message}\x1b[0m`,
     );
   }
 }
 
 async function checkAndUpdateBrew() {
+  const brewExists = await runCommand("brew", ["--version"]);
+  if (!brewExists) {
+    console.log("\x1b[33m⚠️  Homebrew is not installed.\x1b[0m");
+    return;
+  }
+
   console.log("\x1b[1;34m🔍 Checking for Homebrew updates...\x1b[0m");
 
   // Update Homebrew
