@@ -1,6 +1,9 @@
-async function runCommand(command: string): Promise<string> {
-  const cmd = new Deno.Command(command.split(" ")[0], {
-    args: command.split(" ").slice(1),
+async function runCommand(
+  command: string,
+  args: string[] = [],
+): Promise<string> {
+  const cmd = new Deno.Command(command, {
+    args,
     stdout: "piped",
     stderr: "piped",
   });
