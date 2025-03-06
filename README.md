@@ -2,6 +2,8 @@
 
 A tool to check if your Node.js, Deno, and Rust versions are up to date.
 
+![Screenshot](./images/screenshot1.png)
+
 ## Installation
 
 Run the following command to install:
