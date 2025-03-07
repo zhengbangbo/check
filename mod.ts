@@ -19,6 +19,9 @@ async function runCommand(
   }
 }
 
+/**
+ * Checks if the current Node.js version is the latest LTS version.
+ */
 export async function checkNodeLTSVersion() {
   const nodeExists = await runCommand("node", ["-v"]);
   if (!nodeExists) {
@@ -60,6 +63,9 @@ export async function checkNodeLTSVersion() {
   }
 }
 
+/**
+ * Checks if the current Deno version is the latest version.
+ */
 export async function checkDenoVersion() {
   const currentDeno = Deno.version.deno;
   const latestDeno = await fetch(
@@ -80,6 +86,9 @@ export async function checkDenoVersion() {
   }
 }
 
+/**
+ * Checks if the current Rust version is the latest version.
+ */
 export async function checkRustVersion() {
   const rustExists = await runCommand("rustc", ["--version"]);
   if (!rustExists) {
@@ -118,7 +127,11 @@ export async function checkRustVersion() {
   }
 }
 
-async function checkAndUpdateBrew() {
+/**
+ * Checks if the current Homebrew's packages are up to date.
+ * And updates them if necessary.
+ */
+export async function checkAndUpdateBrew() {
   const brewExists = await runCommand("brew", ["--version"]);
   if (!brewExists) {
     console.log("\x1b[33m⚠️  Homebrew is not installed.\x1b[0m");
@@ -161,13 +174,13 @@ async function checkAndUpdateBrew() {
   }
 }
 
-export async function check() {
-  await checkNodeLTSVersion();
-  await checkDenoVersion();
-  await checkRustVersion();
-  await checkAndUpdateBrew();
+export function check() {
+  checkNodeLTSVersion();
+  checkDenoVersion();
+  checkRustVersion();
+  checkAndUpdateBrew();
 }
 
 if (import.meta.main) {
-  await check();
+  check();
 }
