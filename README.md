@@ -12,16 +12,17 @@ Run the following command to install:
 deno install -g -A jsr:@bob/check
 ```
 
-> `-g` flag is used to install the tool globally.
-> `-A` flag is used to grant all permissions to the tool.
+> The `-g` flag installs a package or script as a globally available executable.
+> The `-A` flag grants all permissions to the tool.
 
 If you want to update the tool, run:
 
 ```bash
-deno install -g -A -f jsr:@bob/check
+deno install -g -A -f -r jsr:@bob/check
 ```
 
-> `-f` flag is used to force the installation.
+> The `-f` flag is used to forcefully overwrite an existing installation.
+> The `-r` flag is used to reload the source code cache, triggering a recompilation of TypeScript.
 
 ## Usage
 
