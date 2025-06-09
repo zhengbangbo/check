@@ -29,6 +29,14 @@ export async function checkNodeLTSVersion() {
     return;
   }
 
+  const fnmExists = await runCommand("fnm", ["--version"]);
+  if (!fnmExists) {
+    console.log("\x1b[33m⚠️  'fnm' (Fast Node Manager) is not installed.\x1b[0m");
+    console.log("\x1b[34m   It is recommended to use fnm to manage and switch Node.js versions.\x1b[0m");
+    console.log("\x1b[34m   Install: https://github.com/Schniz/fnm#installation\x1b[0m");
+    return;
+  }
+
   try {
     const currentNode = nodeExists.replace("v", "");
     const latestLTS = (await runCommand("fnm", ["list-remote", "--lts"]))
