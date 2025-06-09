@@ -42,4 +42,4 @@ deno uninstall -g check
 
 ## License
 
-[MIT](./LICENSE) Copyright © 2025-PRESENT [Bob Zheng](https://github.com/bobz25)
+[MIT](./LICENSE) Copyright © 2025-PRESENT [Bob Zheng](https://github.com/zhengbangbo)
