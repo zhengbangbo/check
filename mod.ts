@@ -29,29 +29,28 @@ export async function checkNodeLTSVersion() {
     return;
   }
 
-  const fnmExists = await runCommand("fnm", ["--version"]);
-  if (!fnmExists) {
-    console.log("\x1b[33m⚠️  'fnm' (Fast Node Manager) is not installed.\x1b[0m");
-    console.log("\x1b[34m   It is recommended to use fnm to manage and switch Node.js versions.\x1b[0m");
-    console.log("\x1b[34m   Install: https://github.com/Schniz/fnm#installation\x1b[0m");
+  const vpExists = await runCommand("vp", ["--version"]);
+  if (!vpExists) {
+    console.log("\x1b[33m⚠️  'vp' (Vite+) is not installed.\x1b[0m");
+    console.log("\x1b[34m   It is recommended to use Vite+ to manage and switch Node.js versions.\x1b[0m");
+    console.log("\x1b[34m   Install: https://github.com/voidzero-dev/vite-plus\x1b[0m");
     return;
   }
 
   try {
     const currentNode = nodeExists.replace("v", "");
-    const latestLTS = (await runCommand("fnm", ["list-remote", "--lts"]))
-      ?.split("\n")
-      .filter(Boolean)
-      .pop()
-      ?.split(" ")[0]
-      .replace("v", "");
+    const res = await fetch("https://nodejs.org/dist/index.json");
+    const releases = await res.json();
+    const latestLTS = releases
+      .find((r: { lts: string | false }) => r.lts !== false)
+      ?.version?.replace("v", "");
 
     if (currentNode !== latestLTS) {
       console.log(
         `\x1b[33m⚠️  Your Node.js version (${currentNode}) is not the latest LTS version (${latestLTS}).\x1b[0m`,
       );
       console.log(
-        `\x1b[34m   Run 'fnm install --lts && fnm default lts-latest' to update.\x1b[0m`,
+        `\x1b[34m   Run 'vp env use lts' to update.\x1b[0m`,
       );
     } else {
       console.log(
